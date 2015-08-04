@@ -1,9 +1,12 @@
 var combinators = require('fantasy-combinators'),
     daggy = require('daggy'),
+    sorcery = require('fantasy-sorcery'),
 
-    Either = requre('fantasy-eithers'),
+    Either = require('fantasy-eithers'),
     Coyoneda = require('./coyoneda'),
 
+    constant = combinators.constant,
+    point    = sorcery.point,
 
     Free = daggy.taggedSum({
         Of:    ['x'],
@@ -22,41 +25,68 @@ Free.liftFC = function(c) {
 };
 
 Free.prototype.chain = function(f) {
-    // TODO
+    return Free.Chain(this, f);
+};
+
+Free.prototype.andThen = function(x) {
+    return this.chain(constant(x));
 };
 
 Free.prototype.fold = function(f, g) {
-    // TODO
+    return this.resume().fold(f, g);
 };
 
 Free.prototype.step = function() {
-    // TODO
+    return this.cata({
+        Of: Free.Of,
+        Join: Free.Join,
+        Chain: function(x, f) {
+            return x.cata({
+                Of   : function(x) {
+                    return f(x).step();
+                },
+                Join : Free.Join,
+                Chain: function(y, g) {
+                    return y.chain(function(z) {
+                        return g(z).chain(f);
+                    }).step();
+                }
+            });
+        }
+    });
 };
 
 Free.prototype.foldMap = function(m, f) {
-    // TODO
+    return this.step().cata({
+        Of   : point(m),
+        Join : f,
+        Chain: function(x, g) {
+            return x.foldMap(m, f).chain(function(y) {
+                return g(y).foldMap(m, f);
+            });
+        }
+    });
 };
 
 Free.prototype.resume = function() {
-    var self = this;
     return this.cata({
-        Of: function() {
-            return Either.Right(self.x);
+        Of: function(x) {
+            return Either.Right(x);
         },
-        Join: function() {
-            return Either.Left(self.x.map(Free.Of));
+        Join: function(x) {
+            return Either.Left(x.map(Free.Of));
         },
-        Chain: function() {
-            return self.x.cata({
+        Chain: function(x, f) {
+            return x.cata({
                 Of: function(x) {
                     return f(x).resume();
                 },
                 Join: function(x) {
-                    return Either.Left(x.map(self.f));
+                    return Either.Left(x.map(f));
                 },
-                Chain: function(x, f) {
+                Chain: function(x, g) {
                     return x.chain(function(y) {
-                        return f(y).chain(self.f);
+                        return g(y).chain(f);
                     }).resume();
                 }
             });
@@ -69,3 +99,21 @@ Free.prototype.runFC = function(m, f) {
         return f(coyo.value()).map(coyo.func());
     });
 };
+
+Free.prototype.toString = function(){
+    return this.cata({
+        Of: function(x) {
+            return 'Free.Of(' + x + ')';
+        },
+        Join: function(x) {
+            return 'Free.Join(' + x + ')';
+        },
+        Chain: function(x, f) {
+            return 'Free.Chain(' + x + ', ' + f + ')';
+        }
+    });
+};
+
+// Export
+if (typeof module != 'undefined')
+    module.exports = Free;

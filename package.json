@@ -9,14 +9,11 @@
         "url": "https://github.com/SimonRichardson/fantasia.git"
     },
     "dependencies": {
-        "fantasy-io": "0.0.x",
-        "fantasy-options": "0.0.x",
-        "fantasy-helpers": "0.0.x",
         "fantasy-combinators": "0.0.x",
         "fantasy-eithers": "0.0.x",
-        "fantasy-validations": "0.0.x",
-        "fantasy-states": "0.2.x",
         "fantasy-tuples": "0.0.x",
+        "fantasy-sorcery": "0.0.x",
+        "fantasy-lenses": "0.1.x",
         "daggy": "0.0.x"
     },
     "devDependencies": {

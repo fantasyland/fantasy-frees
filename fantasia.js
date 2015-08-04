@@ -1,7 +1,9 @@
 var coyoneda = require('./src/coyoneda'),
-    free     = require("./src/free");
+    free     = require("./src/free"),
+    unit     = require("./src/unit");
 
 exports = module.exports = {
-    coyoneda : coyoneda,
-    free     : free
+    Coyoneda : coyoneda,
+    Free     : free,
+    Unit     : unit
 };

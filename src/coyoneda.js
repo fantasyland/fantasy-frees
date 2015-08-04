@@ -22,6 +22,10 @@ Coyoneda.prototype.map = function(f) {
     return Coyoneda(compose(f)(this.func()), this.value());
 };
 
+Coyoneda.prototype.toString = function() {
+    return 'Coyoneda(' + this.f + ', ' + this.x + ')';
+}
+
 // Export
 if (typeof module != 'undefined')
     module.exports = Coyoneda;
