@@ -10,21 +10,9 @@ Coyoneda.liftCoyoneda = function(c) {
     return Coyoneda(identity, c);
 };
 
-Coyoneda.prototype.func = function() {
-    return this.f;
-};
-
-Coyoneda.prototype.value = function() {
-    return this.x;
-};
-
 Coyoneda.prototype.map = function(f) {
-    return Coyoneda(compose(f)(this.func()), this.value());
+    return Coyoneda(compose(f)(this.f), this.x);
 };
-
-Coyoneda.prototype.toString = function() {
-    return 'Coyoneda(' + this.f + ', ' + this.x + ')';
-}
 
 // Export
 if (typeof module != 'undefined')

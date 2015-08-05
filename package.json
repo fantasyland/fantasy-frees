@@ -9,12 +9,14 @@
         "url": "https://github.com/SimonRichardson/fantasia.git"
     },
     "dependencies": {
-        "fantasy-combinators": "0.0.x",
-        "fantasy-eithers": "0.0.x",
-        "fantasy-tuples": "0.0.x",
-        "fantasy-sorcery": "0.0.x",
-        "fantasy-lenses": "0.1.x",
-        "daggy": "0.0.x"
+        "fantasy-combinators": "^0.x.x",
+        "fantasy-eithers": "^0.x.x",
+        "fantasy-tuples": "^0.x.x",
+        "fantasy-sorcery": "^0.x.x",
+        "fantasy-lenses": "^0.x.x",
+        "fantasy-states": "^0.x.x",
+        "fantasy-identities": "^0.x.x",
+        "daggy": "^0.x.x"
     },
     "devDependencies": {
         "grunt-cli": "0.1.9",

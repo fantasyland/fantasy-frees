@@ -2,6 +2,8 @@ var combinators = require('fantasy-combinators'),
     daggy       = require('daggy'),
     fantasia    = require('./../fantasia'),
     tuples      = require('fantasy-tuples'),
+    
+    Identity      = require('fantasy-identities'),
 
     identity = combinators.identity,
 
@@ -20,7 +22,9 @@ var combinators = require('fantasy-combinators'),
     Request = daggy.taggedSum({
         Fetch : ['x'],
         Pure  : ['x']
-    });
+    }),
+
+    interpreters;
 
 Service.prototype.map = function() {
     return this;
@@ -63,11 +67,11 @@ Request.prototype.toString = function() {
 };
 
 function pure(x) {
-    return Free.liftF(Request.Pure(x));
+    return Free.liftFC(Request.Pure(x));
 }
 
 function fetch(s) {
-    return Free.liftF(Request.Fetch(s));
+    return Free.liftFC(Request.Fetch(s));
 }
 
 function singleton(k, v) {
@@ -93,31 +97,33 @@ function sequence(func) {
     };
 }
 
-function interpreter(req) {
-    return req.cata({
-        Pure: identity,
-        Fetch: function(s) {
-            return s.cata({
-                GetTweets: function(id) {
-                    console.log('Getting tweets for user ', id);
-                    return [Tweet(1, 'Hello'), Tweet(2, 'World'), Tweet(3, '!')];
-                },
-                GetUserName: function(id) {
-                    console.log('Getting name for user ', id);
-                    return id === 1 ? 'Tim'
-                         : id === 2 ? 'Bob'
-                         : 'Anonymous';
-                },
-                GetUserPhoto: function(id) {
-                    console.log('Getting photo for user ', id);
-                    return id === 1 ? ':-)'
-                         : id === 2 ? ':-D'
-                         : ':-|';
-                }
-            });
-        }
-    });
-}
+interpreters = {
+    pure : function(req) {
+        return req.cata({
+            Pure: identity,
+            Fetch: function(s) {
+                return s.cata({
+                    GetTweets: function(id) {
+                        console.log('Getting tweets for user ', id);
+                        return [Tweet(1, 'Hello'), Tweet(2, 'World'), Tweet(3, '!')];
+                    },
+                    GetUserName: function(id) {
+                        console.log('Getting name for user ', id);
+                        return id === 1 ? 'Tim'
+                             : id === 2 ? 'Bob'
+                             : 'Anonymous';
+                    },
+                    GetUserPhoto: function(id) {
+                        console.log('Getting photo for user ', id);
+                        return id === 1 ? ':-)'
+                             : id === 2 ? ':-D'
+                             : ':-|';
+                    }
+                });
+            }
+        });
+    }
+};
 
 function getUser(id) {
     return fetch(Service.GetUserName(id)).chain(function(name) {
@@ -130,7 +136,7 @@ function getUser(id) {
 (function() {
 
     var id = 1,
-        free = fetch(Service.GetTweets(id)).chain(function(tweets) {
+        script = fetch(Service.GetTweets(id)).chain(function(tweets) {
             return tweets.map(function(tweet) {
                 return getUser(tweet.id).chain(function(user) {
                     return singleton(tweet.str, user);
@@ -138,10 +144,7 @@ function getUser(id) {
             });
         });
 
-    function run() {
-        return free.runFC(free, interpreter);
-    }
-
-    run();
-
+    console.log('-----------------------------------');
+    console.log(Free.runFC(script, interpreters.pure, Identity));
+    console.log('-----------------------------------');
 })()
