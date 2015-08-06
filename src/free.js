@@ -12,15 +12,15 @@ var combinators = require('fantasy-combinators'),
     point    = sorcery.point,
 
     Free = daggy.taggedSum({
-        Of:    ['x'],
-        Join:  ['x'],
-        Chain: ['x', 'f']
+        Of:      ['x'],
+        Suspend: ['x'],
+        Chain:   ['x', 'f']
     });
 
 Free.of = Free.Of;
 
 Free.liftF = function(c) {
-    return Free.Join(c.map(Free.Of));
+    return Free.Suspend(c.map(Free.Of));
 };
 
 Free.liftFC = function(c) {
@@ -66,18 +66,14 @@ Free.prototype.foldMap = function(p, f) {
 
 Free.prototype.resume = function() {
     return this.cata({
-        Of: function(x) {
-            return Either.Right(x);
-        },
-        Join: function(x) {
-            return Either.Left(x.map(Free.Of));
-        },
+        Of:  Either.Right,
+        Suspend: Either.Left,
         Chain: function(x, f) {
             return x.cata({
                 Of: function(x) {
                     return f(x).resume();
                 },
-                Join: function(x) {
+                Suspend: function(x) {
                     return Either.Left(x.map(f));
                 },
                 Chain: function(x, g) {

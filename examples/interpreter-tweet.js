@@ -118,7 +118,7 @@ function getUser(id) {
         script = fetch(Service.GetTweets(id)).chain(function(tweets) {
             console.log('>', tweets);
             var x = tweets.map(function(tweet) {
-                console.log('>>', tweet.id);
+                console.log('>>', tweet);
                 return getUser(tweet.id).chain(function(user) {
                     console.log('>>>', user);
                     return singleton(tweet.str, user);
