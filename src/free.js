@@ -24,7 +24,7 @@ Free.liftF = function(c) {
 };
 
 Free.liftFC = function(c) {
-    return Free.Join(Coyoneda.liftCoyoneda(c).map(Free.Of));
+    return Free.liftF(Coyoneda.lift(c));
 };
 
 Free.runFC = function(m, f, p) {

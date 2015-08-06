@@ -26,19 +26,15 @@ var combinators = require('fantasy-combinators'),
 
     interpreters;
 
-Service.prototype.map = function() {
-    return this;
-};
-
 Service.prototype.toString = function() {
     return this.cata({
-        GetTweets    : function(x) {
+        GetTweets: function(x) {
             return 'Service.GetTweets(' + x + ')';
         },
-        GetUserName  : function(x) {
+        GetUserName: function(x) {
             return 'Service.GetUserName(' + x + ')';
         },
-        GetUserPhoto : function(x) {
+        GetUserPhoto: function(x) {
             return 'Service.GetUserPhoto(' + x + ')';
         }
     });
@@ -78,23 +74,6 @@ function singleton(k, v) {
     var x = {};
     x[k] = v;
     return x;
-}
-
-function sequence(func) {
-    return function(x, f) {
-        function go(x, free) {
-            return free.resume().bimap(
-                function(y) {
-                    var z = f(x, y);
-                    return go(z._1, z._2);
-                },
-                function(y) {
-                    return Tuple2(x, y);
-                }
-            );
-        }
-        return go(x, func);
-    };
 }
 
 interpreters = {
@@ -137,11 +116,16 @@ function getUser(id) {
 
     var id = 1,
         script = fetch(Service.GetTweets(id)).chain(function(tweets) {
-            return tweets.map(function(tweet) {
+            console.log('>', tweets);
+            var x = tweets.map(function(tweet) {
+                console.log('>>', tweet.id);
                 return getUser(tweet.id).chain(function(user) {
+                    console.log('>>>', user);
                     return singleton(tweet.str, user);
                 });
             });
+            console.log(x);
+            return x;
         });
 
     console.log('-----------------------------------');
