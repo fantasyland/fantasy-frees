@@ -41,6 +41,7 @@ Service.prototype.toString = function() {
 };
 
 Request.prototype.map = function(f) {
+    console.log(">>", this);
     return this.cata({
         Fetch: function(x) {
             return Request.Fetch(x.map(f));
@@ -116,6 +117,7 @@ function getUser(id) {
 
     var id = 1,
         script = fetch(Service.GetTweets(id)).chain(function(tweets) {
+            // FIXME : This should pass back array of tweets, not a mapped version of tweets [x, y, z] rather than [x][y][z]!
             console.log('>', tweets);
             var x = tweets.map(function(tweet) {
                 console.log('>>', tweet);
