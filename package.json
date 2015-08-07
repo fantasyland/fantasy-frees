@@ -16,6 +16,7 @@
         "fantasy-lenses": "^0.x.x",
         "fantasy-states": "^0.x.x",
         "fantasy-identities": "^0.x.x",
+        "fantasy-helpers": "^0.x.x",
         "daggy": "^0.x.x"
     },
     "devDependencies": {

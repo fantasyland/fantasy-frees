@@ -12,15 +12,15 @@ var combinators = require('fantasy-combinators'),
     point    = sorcery.point,
 
     Free = daggy.taggedSum({
-        Of:      ['x'],
+        Return:  ['x'],
         Suspend: ['x'],
         Chain:   ['x', 'f']
     });
 
-Free.of = Free.Of;
+Free.of = Free.Return;
 
 Free.liftF = function(c) {
-    return Free.Suspend(c.map(Free.Of));
+    return Free.Suspend(c.map(Free.Return));
 };
 
 Free.liftFC = function(c) {
@@ -66,15 +66,17 @@ Free.prototype.foldMap = function(p, f) {
 
 Free.prototype.resume = function() {
     return this.cata({
-        Of:  Either.Right,
+        Return:  Either.Right,
         Suspend: Either.Left,
         Chain: function(x, f) {
             return x.cata({
-                Of: function(x) {
+                Return: function(x) {
                     return f(x).resume();
                 },
                 Suspend: function(x) {
-                    return Either.Left(x.map(f));
+                    return Either.Left(x.map(function(y) {
+                        return y.chain(f);
+                    }));
                 },
                 Chain: function(x, g) {
                     return x.chain(function(y) {
@@ -82,6 +84,20 @@ Free.prototype.resume = function() {
                     }).resume();
                 }
             });
+        }
+    });
+};
+
+Free.prototype.toString = function(){
+    return this.cata({
+        Return: function(x) {
+            return 'Free.Return(' + x + ')';
+        },
+        Join: function(x) {
+            return 'Free.Join(' + x + ')';
+        },
+        Chain: function(x, f) {
+            return 'Free.Chain(' + x + ', ' + f + ')';
         }
     });
 };

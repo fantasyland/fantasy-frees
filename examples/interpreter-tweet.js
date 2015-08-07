@@ -2,10 +2,12 @@ var combinators = require('fantasy-combinators'),
     daggy       = require('daggy'),
     fantasia    = require('./../fantasia'),
     tuples      = require('fantasy-tuples'),
+    helpers     = require('fantasy-helpers'),
     
     Identity      = require('fantasy-identities'),
 
-    identity = combinators.identity,
+    identity  = combinators.identity,
+    singleton = helpers.singleton,
 
     Free   = fantasia.Free,
     Tuple2 = tuples.Tuple2,
@@ -69,12 +71,6 @@ function pure(x) {
 
 function fetch(s) {
     return Free.liftFC(Request.Fetch(s));
-}
-
-function singleton(k, v) {
-    var x = {};
-    x[k] = v;
-    return x;
 }
 
 interpreters = {

@@ -76,8 +76,8 @@ interpreters = {
                 });
             },
             WriteLine: function(value) {
-                return State(function(env) {
-                    return Tuple2(null, env.write(value));
+                return State.modify(function(env) {
+                    return env.write(value);
                 });
             }
         });
@@ -89,8 +89,7 @@ interpreters = {
 
     var script = readLine().chain(function(x) {
             return readLine().chain(function(y) {
-                // FIXME : This should just be `x + " " + y`
-                return writeLine(x.x + " " + y.x);
+                return writeLine(x + " " + y);
             });
         }),
         mock = Mock(["Hello", "World"], []),

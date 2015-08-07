@@ -29,7 +29,7 @@ KVS.prototype.map = function(f) {
             return KVS.Del(k, f(n));
         },
         Get: function(k, v) {
-            return KVS.Get(k, f);
+            return KVS.Get(k, compose(f)(v));
         } 
     });
 };
