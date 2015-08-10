@@ -68,17 +68,17 @@ Free.prototype.resume = function() {
         Suspend: Either.Left,
         Chain: function(x, f) {
             return x.cata({
-                Return: function(x) {
-                    return f(x).resume();
+                Return: function(y) {
+                    return f(y).resume();
                 },
-                Suspend: function(x) {
-                    return Either.Left(x.map(function(y) {
-                        return y.chain(f);
+                Suspend: function(y) {
+                    return Either.Left(y.map(function(z) {
+                        return z.chain(f);
                     }));
                 },
-                Chain: function(x, g) {
-                    return x.chain(function(y) {
-                        return g(y).chain(f);
+                Chain: function(y, g) {
+                    return y.chain(function(z) {
+                        return g(z).chain(f);
                     }).resume();
                 }
             });

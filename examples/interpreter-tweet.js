@@ -38,6 +38,13 @@ function fetch(s) {
     return Free.liftFC(Request.Fetch(s));
 }
 
+function arrayNel(x) {
+    function go(y, z) {
+        return y.length < 1 ? z.x : go(y.slice(0, -1), Option.Some(Cofree(y.slice(-1)[0], z)));
+    }
+    return go(x, Option.None);
+}
+
 interpreters = {
     pure : function(req) {
         return Identity.of(req.cata({
@@ -45,20 +52,7 @@ interpreters = {
             Fetch: function(s) {
                 return s.cata({
                     GetTweets: function(id) {
-                        return Cofree(
-                            Tweet(1, 'Hello'), 
-                            Option.Some(
-                                Cofree(
-                                    Tweet(2, 'World'), 
-                                    Option.Some(
-                                        Cofree(
-                                            Tweet(3, '!'),
-                                            Option.None
-                                        )
-                                    )
-                                )
-                            )
-                        );
+                        return arrayNel([Tweet(1, 'Hello'), Tweet(2, 'World'), Tweet(3, '!')]);
                     },
                     GetUserName: function(id) {
                         return id === 1 ? 'Tim'
