@@ -5,8 +5,6 @@ var combinators = require('fantasy-combinators'),
     Either = require('fantasy-eithers'),
     Coyoneda = require('./coyoneda'),
 
-    State = require('fantasy-states'),
-
     compose = combinators.compose,
     constant = combinators.constant,
     point    = sorcery.point,
@@ -84,20 +82,6 @@ Free.prototype.resume = function() {
                     }).resume();
                 }
             });
-        }
-    });
-};
-
-Free.prototype.toString = function(){
-    return this.cata({
-        Return: function(x) {
-            return 'Free.Return(' + x + ')';
-        },
-        Join: function(x) {
-            return 'Free.Join(' + x + ')';
-        },
-        Chain: function(x, f) {
-            return 'Free.Chain(' + x + ', ' + f + ')';
         }
     });
 };

@@ -4,8 +4,10 @@ var combinators = require('fantasy-combinators'),
     tuples      = require('fantasy-tuples'),
     helpers     = require('fantasy-helpers'),
     
-    Identity      = require('fantasy-identities'),
-
+    Cofree   = require('fantasy-cofrees'),
+    Identity = require('fantasy-identities'),
+    Option   = require('fantasy-options'),
+    
     identity  = combinators.identity,
     singleton = helpers.singleton,
 
@@ -28,43 +30,6 @@ var combinators = require('fantasy-combinators'),
 
     interpreters;
 
-Service.prototype.toString = function() {
-    return this.cata({
-        GetTweets: function(x) {
-            return 'Service.GetTweets(' + x + ')';
-        },
-        GetUserName: function(x) {
-            return 'Service.GetUserName(' + x + ')';
-        },
-        GetUserPhoto: function(x) {
-            return 'Service.GetUserPhoto(' + x + ')';
-        }
-    });
-};
-
-Request.prototype.map = function(f) {
-    console.log(">>", this);
-    return this.cata({
-        Fetch: function(x) {
-            return Request.Fetch(x.map(f));
-        },
-        Pure: function(x) {
-            return Request.Pure(f(x));
-        }
-    });
-};
-
-Request.prototype.toString = function() {
-    return this.cata({
-        Fetch: function(x) {
-            return 'Request.Fetch(' + x + ')';
-        },
-        Pure: function(x) {
-            return 'Request.Pure(' + x + ')';
-        }
-    });
-};
-
 function pure(x) {
     return Free.liftFC(Request.Pure(x));
 }
@@ -75,29 +40,39 @@ function fetch(s) {
 
 interpreters = {
     pure : function(req) {
-        return req.cata({
+        return Identity.of(req.cata({
             Pure: identity,
             Fetch: function(s) {
                 return s.cata({
                     GetTweets: function(id) {
-                        console.log('Getting tweets for user ', id);
-                        return [Tweet(1, 'Hello'), Tweet(2, 'World'), Tweet(3, '!')];
+                        return Cofree(
+                            Tweet(1, 'Hello'), 
+                            Option.Some(
+                                Cofree(
+                                    Tweet(2, 'World'), 
+                                    Option.Some(
+                                        Cofree(
+                                            Tweet(3, '!'),
+                                            Option.None
+                                        )
+                                    )
+                                )
+                            )
+                        );
                     },
                     GetUserName: function(id) {
-                        console.log('Getting name for user ', id);
                         return id === 1 ? 'Tim'
                              : id === 2 ? 'Bob'
                              : 'Anonymous';
                     },
                     GetUserPhoto: function(id) {
-                        console.log('Getting photo for user ', id);
                         return id === 1 ? ':-)'
                              : id === 2 ? ':-D'
                              : ':-|';
                     }
                 });
             }
-        });
+        }));
     }
 };
 
@@ -113,17 +88,11 @@ function getUser(id) {
 
     var id = 1,
         script = fetch(Service.GetTweets(id)).chain(function(tweets) {
-            // FIXME : This should pass back array of tweets, not a mapped version of tweets [x, y, z] rather than [x][y][z]!
-            console.log('>', tweets);
-            var x = tweets.map(function(tweet) {
-                console.log('>>', tweet);
-                return getUser(tweet.id).chain(function(user) {
-                    console.log('>>>', user);
+            return tweets.map(function(tweet) {
+                return getUser(tweet.id).map(function(user) {
                     return singleton(tweet.str, user);
                 });
-            });
-            console.log(x);
-            return x;
+            }).traverse(Free.of, Free);
         });
 
     console.log('-----------------------------------');

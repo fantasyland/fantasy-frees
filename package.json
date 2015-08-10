@@ -11,12 +11,7 @@
     "dependencies": {
         "fantasy-combinators": "^0.x.x",
         "fantasy-eithers": "^0.x.x",
-        "fantasy-tuples": "^0.x.x",
         "fantasy-sorcery": "^0.x.x",
-        "fantasy-lenses": "^0.x.x",
-        "fantasy-states": "^0.x.x",
-        "fantasy-identities": "^0.x.x",
-        "fantasy-helpers": "^0.x.x",
         "daggy": "^0.x.x"
     },
     "devDependencies": {
@@ -25,6 +20,13 @@
         "grunt-contrib-jshint": "0.6.x",
         "grunt-contrib-nodeunit": "0.2.0",
         "fantasy-check": "0.0.x",
+        "fantasy-helpers": "^0.x.x",
+        "fantasy-states": "^0.x.x",
+        "fantasy-lenses": "^0.x.x",
+        "fantasy-tuples": "^0.x.x",
+        "fantasy-cofrees": "git+https://github.com/fantasyland/fantasy-cofrees.git",
+        "fantasy-identities": "git+https://github.com/fantasyland/fantasy-identities.git",
+        "fantasy-options": "git+https://github.com/fantasyland/fantasy-options.git",
         "readline-sync": "^1.2.19"
     },
     "scripts": {
