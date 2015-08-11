@@ -70,8 +70,25 @@ function body(body) {
     return Free.liftF(Responses.Body(body, Unit()));
 }
 
-function assoc(l, v, o) {
-    return l.run(o).set(v);
+function replaceHeader(header, value) {
+    return removeHeader(header).chain(function(x) {
+        return addHeader(header, value);
+    });
+}
+
+function json(value) {
+    return replaceHeader('Content-Type', 'application/json').chain(function(x) {                
+        return body(JSON.stringify(value));
+    });
+}
+
+function dissoc(l, n, o) {
+    // This is wrong atm.
+    var x = l.run(o).map(function(x) {
+        delete x.headers[n];
+        return x;
+    });
+    return x.extract();
 }
 
 interpreters = {
@@ -81,16 +98,17 @@ interpreters = {
                 return x.cata({
                     AddHeader: function(header, value, n) {
                         var h = lenses.headers.andThen(Lens.objectLens(header));
-                        return interpreters.pure(n, assoc(h, value, res));
+                        return interpreters.pure(n, h.run(res).set(value));
                     },
                     RemoveHeader: function(header, n) {
-                        return interpreters.pure(n, res);
+                        var h = lenses.headers.andThen(Lens.objectLens(header));
+                        return interpreters.pure(n, dissoc(h, header, res));
                     },
                     StatusCode: function(code, n) {
-                        return interpreters.pure(n, assoc(lenses.statusCode, code, res));
+                        return interpreters.pure(n, lenses.statusCode.run(res).set(code));
                     },
                     Body: function(body, n) {
-                        return interpreters.pure(n, assoc(lenses.body, body, res));
+                        return interpreters.pure(n, lenses.body.run(res).set(body));
                     }
                 });
             },
@@ -102,14 +120,12 @@ interpreters = {
 (function(){
 
     var res = response(),
-        script = addHeader('Content-Type', 'text/plain').chain(function(x) {
-            return httpStatus.ok().chain(function(x) {
-                return body('Hello World!');
-            });
-        });
+        script = addHeader('Content-Type', 'text/plain')
+                .andThen(httpStatus.ok())
+                .andThen(json({text:'Hello World!'}));
 
-    console.log('--------------------------------');
+    console.log('----------------------------');
     console.log(interpreters.pure(script, res));
-    console.log('--------------------------------');
+    console.log('----------------------------');
 
 })();
