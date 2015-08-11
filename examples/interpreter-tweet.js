@@ -45,9 +45,13 @@ function arrayNel(x) {
     return go(x, Option.None);
 }
 
+Cofree.prototype.sequence = function(p) {
+    return this.traverse(identity, p);
+};
+
 interpreters = {
     pure : function(req) {
-        return Identity.of(req.cata({
+        var res = req.cata({
             Pure: identity,
             Fetch: function(s) {
                 return s.cata({
@@ -66,7 +70,8 @@ interpreters = {
                     }
                 });
             }
-        }));
+        });
+        return Identity.of(res);
     }
 };
 
@@ -86,10 +91,10 @@ function getUser(id) {
                 return getUser(tweet.id).map(function(user) {
                     return singleton(tweet.str, user);
                 });
-            }).traverse(Free.of, Free);
+            }).sequence(Free);
         });
 
-    console.log('-----------------------------------');
+    console.log('---------------------------------------------');
     console.log(Free.runFC(script, interpreters.pure, Identity));
-    console.log('-----------------------------------');
+    console.log('---------------------------------------------');
 })()

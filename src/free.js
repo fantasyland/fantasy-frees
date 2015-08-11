@@ -32,7 +32,20 @@ Free.runFC = function(m, f, p) {
 };
 
 Free.prototype.chain = function(f) {
-    return Free.Chain(this, f);
+    var self = this,
+        val = function() {
+            return Free.Chain(self, f);
+        };
+
+    return this.cata({
+        Return: val,
+        Suspend: val,
+        Chain: function(y, g) {
+            return Free.Chain(y, function(x) {
+                return Free.Chain(g(x), f);
+            });
+        },
+    });
 };
 
 Free.prototype.ap = function(x) {
@@ -84,6 +97,20 @@ Free.prototype.resume = function() {
             });
         }
     });
+};
+
+Free.prototype.toString = function(){       
+    return this.cata({     
+        Return: function(x) {
+            return 'Free.Return(' + x.toString() + ')';       
+        },     
+        Suspend: function(x) {        
+            return 'Free.Suspend(' + x.toString() + ')';     
+        },     
+        Chain: function(x, f) {        
+            return 'Free.Chain(' + x.toString() + ', ' + f + ')';     
+        }      
+    });        
 };
 
 // Export
