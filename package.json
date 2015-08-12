@@ -1,38 +1,55 @@
 {
-    "name": "fantasia",
-    "description": "Free yourself in the land of fantasies.",
-    "author": "Simon Richardson <stickupkid@gmail.com> (https://github.com/SimonRichardson)",
-    "homepage": "https://github.com/SimonRichardson/fantasia",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/SimonRichardson/fantasia.git"
-    },
-    "dependencies": {
-        "fantasy-combinators": "^0.x.x",
-        "fantasy-eithers": "^0.x.x",
-        "fantasy-sorcery": "^0.x.x",
-        "daggy": "^0.x.x"
-    },
-    "devDependencies": {
-        "grunt-cli": "0.1.9",
-        "grunt": "0.4.x",
-        "grunt-contrib-jshint": "0.6.x",
-        "grunt-contrib-nodeunit": "0.2.0",
-        "fantasy-check": "^0.1.x",
-        "fantasy-helpers": "^0.x.x",
-        "fantasy-states": "^0.x.x",
-        "fantasy-lenses": "^0.x.x",
-        "fantasy-tuples": "^0.x.x",
-        "fantasy-cofrees": "git+https://github.com/fantasyland/fantasy-cofrees.git",
-        "fantasy-identities": "git+https://github.com/fantasyland/fantasy-identities.git",
-        "fantasy-options": "git+https://github.com/fantasyland/fantasy-options.git",
-        "readline-sync": "^1.2.19"
-    },
-    "scripts": {
-        "test": "grunt"
-    },
-    "files": ["fantasia.js", "src/*.js"],
-    "main": "src/server.js",
-    "version": "0.1.1"
+  "name": "fantasia",
+  "description": "Free yourself in the land of fantasies.",
+  "author": "Simon Richardson <stickupkid@gmail.com> (https://github.com/SimonRichardson)",
+  "homepage": "https://github.com/SimonRichardson/fantasia",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SimonRichardson/fantasia.git"
+  },
+  "dependencies": {
+    "fantasy-combinators": "^0.x.x",
+    "fantasy-eithers": "^0.x.x",
+    "fantasy-sorcery": "^0.x.x",
+    "daggy": "^0.x.x"
+  },
+  "devDependencies": {
+    "grunt-cli": "0.1.9",
+    "grunt": "0.4.x",
+    "grunt-contrib-jshint": "0.6.x",
+    "grunt-contrib-nodeunit": "0.2.0",
+    "fantasy-check": "^0.1.x",
+    "fantasy-helpers": "^0.x.x",
+    "fantasy-states": "^0.x.x",
+    "fantasy-lenses": "^0.x.x",
+    "fantasy-tuples": "^0.x.x",
+    "fantasy-cofrees": "git+https://github.com/fantasyland/fantasy-cofrees.git",
+    "fantasy-identities": "git+https://github.com/fantasyland/fantasy-identities.git",
+    "fantasy-options": "git+https://github.com/fantasyland/fantasy-options.git",
+    "readline-sync": "^1.2.19"
+  },
+  "scripts": {
+    "test": "grunt"
+  },
+  "files": [
+    "fantasia.js",
+    "src/*.js"
+  ],
+  "main": "src/server.js",
+  "version": "0.0.1",
+  "bugs": {
+    "url": "https://github.com/SimonRichardson/fantasia/issues"
+  },
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "keywords": [
+    "Free",
+    "Monads",
+    "Coyoneda",
+    "Yoneda",
+    "Trampoline"
+  ]
 }
