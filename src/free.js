@@ -73,7 +73,9 @@ Free.prototype.foldMap = function(p, f) {
                 return y.foldMap(p, f);
             });
         },
-        Right: compose(point)(constant(p))
+        Right: function(x) {
+            return point(p, x);
+        }
     });
 };
 
@@ -99,20 +101,6 @@ Free.prototype.resume = function() {
             });
         }
     });
-};
-
-Free.prototype.toString = function(){       
-    return this.cata({     
-        Return: function(x) {
-            return 'Free.Return(' + x.toString() + ')';       
-        },     
-        Suspend: function(x) {        
-            return 'Free.Suspend(' + x.toString() + ')';     
-        },     
-        Chain: function(x, f) {        
-            return 'Free.Chain(' + x.toString() + ', ' + f + ')';     
-        }      
-    });        
 };
 
 // Export

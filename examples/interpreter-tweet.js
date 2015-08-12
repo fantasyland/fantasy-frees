@@ -45,6 +45,17 @@ function arrayNel(x) {
     return go(x, Option.None);
 }
 
+function nelArray(xs) {
+    return [xs.a].concat(xs.f.cata({
+        Some: function(x) {
+            return nelArray(x);
+        },
+        None: function() {
+            return [];
+        }
+    }));
+}
+
 Cofree.prototype.sequence = function(p) {
     return this.traverse(identity, p);
 };
@@ -94,7 +105,7 @@ function getUser(id) {
             }).sequence(Free);
         });
 
-    console.log('---------------------------------------------');
-    console.log(Free.runFC(script, interpreters.pure, Identity));
-    console.log('---------------------------------------------');
+    console.log('---------------------------------------------------------');
+    console.log(nelArray(Free.runFC(script, interpreters.pure, Identity).x));
+    console.log('---------------------------------------------------------');
 })()
