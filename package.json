@@ -19,7 +19,7 @@
         "grunt": "0.4.x",
         "grunt-contrib-jshint": "0.6.x",
         "grunt-contrib-nodeunit": "0.2.0",
-        "fantasy-check": "0.0.x",
+        "fantasy-check": "^0.1.x",
         "fantasy-helpers": "^0.x.x",
         "fantasy-states": "^0.x.x",
         "fantasy-lenses": "^0.x.x",

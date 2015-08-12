@@ -49,7 +49,9 @@ Free.prototype.chain = function(f) {
 };
 
 Free.prototype.ap = function(x) {
-    return this.chain(x.map);
+    return this.chain(function(f) {
+        return x.map(f);
+    });
 };
 
 Free.prototype.map = function(f) {
