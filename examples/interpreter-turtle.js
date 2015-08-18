@@ -122,37 +122,39 @@ interpreters = {
         function close(name) {
             return '</' + name + '>';
         }
+        function dir(s, a) {
+            var r = s.dir * (Math.PI / 180),
+                x = s.x2 + a * Math.cos(r),
+                y = s.y2 + a * Math.sin(r);
+            return extend(s, { x1: s.x2
+                             , y1: s.y2
+                             , x2: x
+                             , y2: y
+                             });
+        }
         function go(free, store, writer) {
             return free.resume().fold(
                 function(x) {
                     return x.cata({
                         Forward: function(x, n) {
-                            var s = extend(store, 
-                                    { x1: store.x1 
-                                    , y1: store.y1
-                                    , x2: store.x1
-                                    , y2: store.y2 + x
-                                    });
+                            var s = extend(store, dir(store, x));
                             return go(n, s, writer.tell([open('line', s, true)]));
                         },
                         Backward: function(x, n) {
-                            var s = extend(store, 
-                                    { x1: store.x1 
-                                    , y1: store.y1
-                                    , x2: store.x1
-                                    , y2: store.y2 - x
-                                    });
-                            return go(n, extend(store, s), writer.tell([open('line', s, true)]));
+                            var s = extend(store, dir(store, -x));
+                            return go(n, s, writer.tell([open('line', s, true)]));
                         },
                         Left: function(x, n) {
-                            return go(n, store, writer);
+                            var s = extend(store, { dir: store.dir-x });
+                            return go(n, s, writer);
                         },
                         Right: function(x, n) {
-                            return go(n, store, writer);
+                            var s = extend(store, { dir: store.dir+x });
+                            return go(n, s, writer);
                         },
                         LineColor: function(x, n) {
                             var s = extend(store, {
-                                style: 'stroke:' + x + ';stroke-width:1'
+                                style: 'stroke:' + x + ';stroke-width:2'
                             });
                             return go(n, s, writer);
                         },
@@ -165,8 +167,9 @@ interpreters = {
             )
         }
 
-        var out = Writer.of([]).tell([open('svg', {width:400, height:400}, false)]);
-        return go(free, {x1:0,y1:0,x2:0,y2:0}, out);
+        var attrs = {width:200, height:200, xmlns:"http://www.w3.org/2000/svg", version:"1.1"},
+            out = Writer.of([]).tell([open('svg', attrs, false)]);
+        return go(free, {x1:0,y1:0,x2:100,y2:100, dir:0}, out);
     }
 };
 
@@ -180,8 +183,8 @@ function repeat(x, y) {
 
 (function(){
     var script = clear().
-                 andThen(lineColor("rgb(255,0,255)")).
-                 andThen(repeat(forward(50).andThen(right(90)), 3));
+                 andThen(lineColor("rgb(38,38,38)")).
+                 andThen(repeat(forward(100).andThen(right(144)), 4));
 
 
     console.log('---------------------------------------------');
