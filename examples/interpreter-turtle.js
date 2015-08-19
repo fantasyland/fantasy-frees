@@ -1,6 +1,6 @@
 var combinators = require('fantasy-combinators'),
     daggy       = require('daggy'),
-    fantasia    = require('./../fantasia'),
+    fantasia    = require('./../fantasy-frees'),
     tuples      = require('fantasy-tuples'),
 
     Lens   = require('fantasy-lenses').Lens,

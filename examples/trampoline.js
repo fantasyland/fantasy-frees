@@ -1,4 +1,4 @@
-var fantasia = require('./../fantasia'),
+var fantasia    = require('./../fantasy-frees'),
     combinators = require('fantasy-combinators'),
 
     identity    = combinators.identity,

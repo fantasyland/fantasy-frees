@@ -1,5 +1,4 @@
-var fantasia = require('./../fantasia'),
-
+var fantasia = require('./../fantasy-frees'),
     Coyoneda = fantasia.Coyoneda;
 
 function add(x) {
