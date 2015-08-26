@@ -1,7 +1,7 @@
 var λ           = require('fantasy-check/src/adapters/nodeunit'),
     functor     = require('fantasy-check/src/laws/functor'),
 
-    fantasia    = require('../fantasia'),
+    fantasia    = require('../fantasy-frees'),
 
     Identity = require('fantasy-identities'),
 

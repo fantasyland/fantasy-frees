@@ -5,7 +5,7 @@ var λ           = require('fantasy-check/src/adapters/nodeunit'),
 
     helpers     = require('fantasy-helpers'),
     combinators = require('fantasy-combinators'),
-    fantasia    = require('../fantasia'),
+    fantasia    = require('../fantasy-frees'),
 
     Identity = require('fantasy-identities'),
 

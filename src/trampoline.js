@@ -16,16 +16,18 @@ function delay(x) {
 }
 
 function run(x) {
-    var done = false;
+    var done = false,
+        left = function(f) {
+            return f();
+        },
+        right = function(x) {
+            done = true;
+            return x;
+        };
     while(!done) {
         x = x.resume().cata({
-            Left: function(x) {
-                return x();
-            },
-            Right: function(x) {
-                done = true;
-                return x;
-            }
+            Left: left,
+            Right: right
         });
     }
     return x;
