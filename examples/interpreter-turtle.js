@@ -1,34 +1,27 @@
-var combinators = require('fantasy-combinators'),
-    daggy       = require('daggy'),
-    fantasia    = require('./../fantasy-frees'),
-    tuples      = require('fantasy-tuples'),
+'use strict';
 
-    Lens   = require('fantasy-lenses').Lens,
-    Writer = require('fantasy-writers'),
+const daggy = require('daggy');
 
-    compose  = combinators.compose,
-    constant = combinators.constant,
-    identity = combinators.identity,
+const {compose, constant, identity} = require('fantasy-combinators');
+const {Free} = require('./../fantasy-frees');
+const {Lens} = require('fantasy-lenses');
+const Writer = require('fantasy-writers');
 
-    Free   = fantasia.Free,
-    Unit   = fantasia.Unit,
+const Turtle = daggy.taggedSum({
+    Forward  : ['x', 'next'],
+    Backward : ['x', 'next'],
+    Left     : ['x', 'next'],
+    Right    : ['x', 'next'],
+    LineColor: ['x', 'next'],
+    Clear    : ['next']
+});
 
-    Turtle = daggy.taggedSum({
-        Forward  : ['x', 'next'],
-        Backward : ['x', 'next'],
-        Left     : ['x', 'next'],
-        Right    : ['x', 'next'],
-        LineColor: ['x', 'next'],
-        Clear    : ['next']
-    }),
-
-    interpreters;
+const unit = daggy.tagged('x');
+const Unit = () => unit('');
 
 Turtle.prototype.map = function(f) {
     function go(c) {
-        return function(x, n) {
-            return c(x, f(n));
-        };
+        return (x, n) => c(x, f(n));
     }
     return this.cata({
         Forward  : go(Turtle.Forward),
@@ -36,9 +29,7 @@ Turtle.prototype.map = function(f) {
         Left     : go(Turtle.Left),
         Right    : go(Turtle.Right),
         LineColor: go(Turtle.LineColor),
-        Clear: function(n) {
-            return Turtle.Clear(f(n));
-        }
+        Clear: (n) => Turtle.Clear(f(n))
     });
 };
 
@@ -66,30 +57,18 @@ function clear() {
     return Free.liftF(Turtle.Clear(Unit()));
 }
 
-interpreters = {
-    string: function(free) {
+const interpreters = {
+    string: (free) => {
         function go(free, writer) {
             return free.resume().fold(
-                function(x) {
+                (x) => {
                     return x.cata({
-                        Forward: function(x, n) {
-                            return go(n, writer.tell(['Forward: ' + x]));
-                        },
-                        Backward: function(x, n) {
-                            return go(n, writer.tell(['Backward: ' + x]));
-                        },
-                        Left: function(x, n) {
-                            return go(n, writer.tell(['Left: ' + x]));
-                        },
-                        Right: function(x, n) {
-                            return go(n, writer.tell(['Right: ' + x]));
-                        },
-                        LineColor: function(x, n) {
-                            return go(n, writer.tell(['LineColor: ' + x]));
-                        },
-                        Clear: function(n) {
-                            return go(n, writer.tell(['Clear']));
-                        }
+                        Forward: (x, n) => go(n, writer.tell(['Forward: ' + x])),
+                        Backward: (x, n) => go(n, writer.tell(['Backward: ' + x])),
+                        Left: (x, n) => go(n, writer.tell(['Left: ' + x])),
+                        Right: (x, n) => go(n, writer.tell(['Right: ' + x])),
+                        LineColor: (x, n) => go(n, writer.tell(['LineColor: ' + x])),
+                        Clear: (n) => go(n, writer.tell(['Clear']))
                     })
                 },
                 constant(writer)
@@ -100,32 +79,30 @@ interpreters = {
     },
     svg: function(free) {
         function copy(x) {
-            var y = {};
+            const y = {};
             for(var i in x) {
                 y[i] = x[i];
             }
             return y;
         }
         function extend(a, b) {
-            var x = copy(a);
+            const x = copy(a);
             for(var i in b) {
                 x[i] = b[i];
             }
             return x;
         }
         function open(name, attr, close) {
-            var m = Object.keys(attr).map(function(x) {
-                return x + '="' + attr[x] + '"';
-            });
+            const m = Object.keys(attr).map((x) => x + '="' + attr[x] + '"');
             return '<' + name + ' ' + m.join(' ') + (close ? '/>' : '>');
         }
         function close(name) {
             return '</' + name + '>';
         }
         function dir(s, a) {
-            var r = s.dir * (Math.PI / 180),
-                x = s.x2 + a * Math.cos(r),
-                y = s.y2 + a * Math.sin(r);
+            const r = s.dir * (Math.PI / 180);
+            const x = s.x2 + a * Math.cos(r);
+            const y = s.y2 + a * Math.sin(r);
             return extend(s, { x1: s.x2
                              , y1: s.y2
                              , x2: x
@@ -134,31 +111,31 @@ interpreters = {
         }
         function go(free, store, writer) {
             return free.resume().fold(
-                function(x) {
+                (x) => {
                     return x.cata({
-                        Forward: function(x, n) {
-                            var s = extend(store, dir(store, x));
+                        Forward: (x, n) => {
+                            const s = extend(store, dir(store, x));
                             return go(n, s, writer.tell([open('line', s, true)]));
                         },
-                        Backward: function(x, n) {
-                            var s = extend(store, dir(store, -x));
+                        Backward: (x, n) => {
+                            const s = extend(store, dir(store, -x));
                             return go(n, s, writer.tell([open('line', s, true)]));
                         },
-                        Left: function(x, n) {
-                            var s = extend(store, { dir: store.dir-x });
+                        Left: (x, n) => {
+                            const s = extend(store, { dir: store.dir-x });
                             return go(n, s, writer);
                         },
-                        Right: function(x, n) {
-                            var s = extend(store, { dir: store.dir+x });
+                        Right: (x, n) => {
+                            const s = extend(store, { dir: store.dir+x });
                             return go(n, s, writer);
                         },
-                        LineColor: function(x, n) {
-                            var s = extend(store, {
+                        LineColor: (x, n) => {
+                            const s = extend(store, {
                                 style: 'stroke:' + x + ';stroke-width:2'
                             });
                             return go(n, s, writer);
                         },
-                        Clear: function(n) {
+                        Clear: (n) => {
                             return go(n, store, writer);
                         }
                     })
@@ -167,8 +144,8 @@ interpreters = {
             )
         }
 
-        var attrs = {width:200, height:200, xmlns:"http://www.w3.org/2000/svg", version:"1.1"},
-            out = Writer.of([]).tell([open('svg', attrs, false)]);
+        const attrs = {width:200, height:200, xmlns:"http://www.w3.org/2000/svg", version:"1.1"};
+        const out = Writer.of([]).tell([open('svg', attrs, false)]);
         return go(free, {x1:0,y1:0,x2:100,y2:100, dir:0}, out);
     }
 };
@@ -180,17 +157,13 @@ function repeat(x, y) {
     return go(x, y);
 }
 
-
-(function(){
-    var script = clear().
-                 andThen(lineColor("rgb(38,38,38)")).
-                 andThen(repeat(forward(100).andThen(right(144)), 4));
+const script = clear().
+             andThen(lineColor("rgb(38,38,38)")).
+             andThen(repeat(forward(100).andThen(right(144)), 4));
 
 
-    console.log('---------------------------------------------');
-    console.log(interpreters.string(script).run()._2.join('\n'));
-    console.log('---------------------------------------------');
-    console.log(interpreters.svg(script).run()._2.join('\n'));
-    console.log('---------------------------------------------');
-
-})();
+console.log('---------------------------------------------');
+console.log(interpreters.string(script).run()._2.join('\n'));
+console.log('---------------------------------------------');
+console.log(interpreters.svg(script).run()._2.join('\n'));
+console.log('---------------------------------------------');

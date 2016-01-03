@@ -1,13 +1,8 @@
-var coyoneda   = require('./src/coyoneda'),
-    free       = require('./src/free'),
-    trampoline = require('./src/trampoline'),
-    unit       = require('./src/unit'),
-    yoneda     = require('./src/yoneda');
+'use strict';
 
-exports = module.exports = {
-    Coyoneda  : coyoneda,
-    Free      : free,
-    Trampoline: trampoline,
-    Unit      : unit,
-    Yoneda    : yoneda
-};
+const Coyoneda = require('./src/coyoneda');
+const Free = require('./src/free');
+const Trampoline = require('./src/trampoline');
+const Yoneda = require('./src/yoneda');
+
+exports = module.exports = {Coyoneda, Free, Trampoline, Yoneda};

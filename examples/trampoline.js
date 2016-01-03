@@ -1,23 +1,15 @@
-var fantasia    = require('./../fantasy-frees'),
-    combinators = require('fantasy-combinators'),
+'use strict';
 
-    identity    = combinators.identity,
-    
-    Trampoline = fantasia.Trampoline;
+const {Trampoline} = require('./../fantasy-frees');
+const {identity} = require('fantasy-combinators');
 
-(function(){
+function loop(n) {
+    function inner(i) {
+        return i == n ? 
+            Trampoline.done(n) :
+            Trampoline.suspend(() => inner(i + 1));
+     }
+     return Trampoline.run(inner(0));
+}
 
-    function loop(n) {
-        function inner(i) {
-            return i == n ? 
-                Trampoline.done(n) :
-                Trampoline.suspend(function() {
-                    return inner(i + 1);
-                });
-         }
-         return Trampoline.run(inner(0));
-    }
-
-    console.log(loop(1000000));
-
-})();
+console.log(loop(1000000));

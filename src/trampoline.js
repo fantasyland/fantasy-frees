@@ -1,29 +1,20 @@
-var combinators = require('fantasy-combinators'),
-    identity = combinators.identity,
+'use strict';
 
-    Free = require('./free');
+const {identity} = require('fantasy-combinators');
+const Free = require('./free');
 
-function done(x) {
-    return Free.of(x);
-}
-
-function suspend(x) {
-    return Free.Suspend(x);
-}
-
-function delay(x) {
-    return suspend(done(x));
-}
+const done = (x) => Free.of(x);
+const suspend = (x) => Free.Suspend(x);
+const delay = (x) => suspend(done(x));
 
 function run(x) {
-    var done = false,
-        left = function(f) {
-            return f();
-        },
-        right = function(x) {
-            done = true;
-            return x;
-        };
+    var done = false;
+
+    const left = (f) => f();
+    const right = (x) => {
+        done = true;
+        return x;
+    };
     while(!done) {
         x = x.resume().cata({
             Left: left,
@@ -35,9 +26,4 @@ function run(x) {
 
 // Export
 if (typeof module != 'undefined')
-    module.exports = {
-        delay  : delay,
-        done   : done,
-        run    : run,
-        suspend: suspend
-    };
+    module.exports = {delay, done, run, suspend};

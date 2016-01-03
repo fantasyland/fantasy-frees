@@ -1,29 +1,20 @@
-var combinators = require('fantasy-combinators'),
-    daggy       = require('daggy'),
-    fantasia    = require('./../fantasy-frees'),
-    tuples      = require('fantasy-tuples'),
-    readin      = require('readline-sync'),
+'use strict';
 
-    Lens  = require('fantasy-lenses').Lens,
-    State = require('fantasy-states'),
+const daggy = require('daggy');
+const readin = require('readline-sync');
 
-    compose  = combinators.compose,
-    constant = combinators.constant,
-    identity = combinators.identity,
+const {compose, constant, identity} = require('fantasy-combinators');
+const {Free} = require('./../fantasy-frees');
+const {Tuple2} = require('fantasy-tuples');
+const {Lens}  = require('fantasy-lenses');
+const State = require('fantasy-states');
 
-    Free   = fantasia.Free,
-    Unit   = fantasia.Unit,
-
-    Tuple2 = tuples.Tuple2,
-
-    Mock = daggy.tagged('in', 'out'),
-    Real = daggy.tagged('out'),
-    TerminalOp = daggy.taggedSum({
-        ReadLine:  [],
-        WriteLine: ['a']
-    }),
-
-    interpreters;
+const Mock = daggy.tagged('in', 'out');
+const Real = daggy.tagged('out');
+const TerminalOp = daggy.taggedSum({
+    ReadLine:  [],
+    WriteLine: ['a']
+});
 
 Mock.prototype.read = function() {
     return Tuple2(
@@ -37,7 +28,7 @@ Mock.prototype.write = function(x) {
 };
 
 Real.prototype.read = function() {
-    var result = readin.question('');
+    const result = readin.question('');
     return Tuple2(
         result,
         Real(this.out)
@@ -50,12 +41,8 @@ Real.prototype.write = function(x) {
 
 TerminalOp.prototype.toString = function() {
     return this.cata({
-        ReadLine: function() {
-            return 'ReadLine()';
-        },
-        WriteLine: function(x) {
-            return 'WriteLine(' + x + ')';
-        }
+        ReadLine: () => 'ReadLine()',
+        WriteLine: (x) => 'WriteLine(' + x + ')'
     });
 };
 
@@ -68,35 +55,27 @@ function writeLine(x) {
 }
 
 interpreters = {
-    pure : function(program) {
+    pure : (program) => {
         return program.cata({
-            ReadLine: function() {
-                return State(function(env) {
-                    return env.read();
-                });
+            ReadLine: () => {
+                return State((env) => env.read());
             },
-            WriteLine: function(value) {
-                return State.modify(function(env) {
-                    return env.write(value);
-                });
+            WriteLine: (value) => {
+                return State.modify((env) => env.write(value));
             }
         });
     }
 };
 
+const script = readLine().chain((x) => {
+    return readLine().chain((y) => {
+        return writeLine(x + " " + y);
+    });
+});
+const mock = Mock(["Hello", "World"], []);
+const real = Real([]);
 
-(function() {
-
-    var script = readLine().chain(function(x) {
-            return readLine().chain(function(y) {
-                return writeLine(x + " " + y);
-            });
-        }),
-        mock = Mock(["Hello", "World"], []),
-        real = Real([]);
-
-    console.log('--------------------------------------------');
-    console.log(Free.runFC(script, interpreters.pure, State).exec(mock).out);
-    console.log(Free.runFC(script, interpreters.pure, State).exec(real).out);
-    console.log('--------------------------------------------');
-})()
+console.log('--------------------------------------------');
+console.log(Free.runFC(script, interpreters.pure, State).exec(mock).out);
+console.log(Free.runFC(script, interpreters.pure, State).exec(real).out);
+console.log('--------------------------------------------');

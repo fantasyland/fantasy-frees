@@ -1,19 +1,17 @@
-var combinators = require('fantasy-combinators'),
-    daggy = require('daggy'),
-    sorcery = require('fantasy-sorcery'),
+'use strict';
 
-    Either = require('fantasy-eithers'),
-    Coyoneda = require('./coyoneda'),
+const {compose, constant} = require('fantasy-combinators');
+const {point} = require('fantasy-sorcery');
+const daggy = require('daggy');
 
-    compose = combinators.compose,
-    constant = combinators.constant,
-    point    = sorcery.point,
+const Either = require('fantasy-eithers');
+const Coyoneda = require('./coyoneda');
 
-    Free = daggy.taggedSum({
-        Return:  ['x'],
-        Suspend: ['x'],
-        Chain:   ['x', 'f']
-    });
+const Free = daggy.taggedSum({
+    Return:  ['x'],
+    Suspend: ['x'],
+    Chain:   ['x', 'f']
+});
 
 Free.of = Free.Return;
 
@@ -26,32 +24,22 @@ Free.liftFC = function(c) {
 };
 
 Free.runFC = function(m, f, p) {
-    return m.foldMap(p, function(coyo) {
-        return f(coyo.x).map(coyo.f);
-    });
+    return m.foldMap(p, (coyo) => f(coyo.x).map(coyo.f));
 };
 
 Free.prototype.chain = function(f) {
-    var self = this,
-        val = function() {
-            return Free.Chain(self, f);
-        };
-
+    const val = () => Free.Chain(this, f);
     return this.cata({
         Return: val,
         Suspend: val,
-        Chain: function(y, g) {
-            return Free.Chain(y, function(x) {
-                return Free.Chain(g(x), f);
-            });
+        Chain: (y, g) => {
+            return Free.Chain(y, (x) => Free.Chain(g(x), f));
         },
     });
 };
 
 Free.prototype.ap = function(x) {
-    return this.chain(function(f) {
-        return x.map(f);
-    });
+    return this.chain((f) => x.map(f));
 };
 
 Free.prototype.map = function(f) {
@@ -68,14 +56,10 @@ Free.prototype.fold = function(f, g) {
 
 Free.prototype.foldMap = function(p, f) {
     return this.resume().cata({
-        Left: function(x) {
-            return f(x).chain(function(y) {
-                return y.foldMap(p, f);
-            });
+        Left: (x) => {
+            return f(x).chain((y) => y.foldMap(p, f));
         },
-        Right: function(x) {
-            return point(p, x);
-        }
+        Right: (x) => point(p, x)
     });
 };
 
@@ -83,20 +67,14 @@ Free.prototype.resume = function() {
     return this.cata({
         Return:  Either.Right,
         Suspend: Either.Left,
-        Chain: function(x, f) {
+        Chain: (x, f) => {
             return x.cata({
-                Return: function(y) {
-                    return f(y).resume();
+                Return: (y) => f(y).resume(),
+                Suspend: (y) => {
+                    return Either.Left(y.map((z) => z.chain(f)));
                 },
-                Suspend: function(y) {
-                    return Either.Left(y.map(function(z) {
-                        return z.chain(f);
-                    }));
-                },
-                Chain: function(y, g) {
-                    return y.chain(function(z) {
-                        return g(z).chain(f);
-                    }).resume();
+                Chain: (y, g) => {
+                    return y.chain((z) => g(z).chain(f)).resume();
                 }
             });
         }
