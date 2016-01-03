@@ -1,10 +1,9 @@
-var combinators = require('fantasy-combinators'),
-    daggy = require('daggy'),
+'use strict';
 
-    compose = combinators.compose,
-    identity = combinators.identity,
+const {compose, identity} = require('fantasy-combinators');
+const daggy = require('daggy');
 
-    Coyoneda = daggy.tagged('f', 'x');
+const Coyoneda = daggy.tagged('f', 'x');
 
 Coyoneda.lift = function(x) {
     return Coyoneda(identity, x);

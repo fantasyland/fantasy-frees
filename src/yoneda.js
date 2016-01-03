@@ -1,22 +1,16 @@
-var combinators = require('fantasy-combinators'),
-    daggy = require('daggy'),
+'use strict';
 
-    compose = combinators.compose,
-    identity = combinators.identity,
+const {compose, identity} = require('fantasy-combinators');
+const daggy = require('daggy');
 
-    Yoneda = daggy.tagged('f');
+const Yoneda = daggy.tagged('f');
 
 Yoneda.lift = function(x) {
-    return Yoneda(function(y) {
-        return x.map(y);
-    });
+    return Yoneda((y) => x.map(y));
 };
 
 Yoneda.prototype.map = function(f) {
-    var self = this;
-    return Yoneda(function(x) {
-        return self.run(compose(x)(f));
-    });
+    return Yoneda((x) => this.run(compose(x)(f)));
 };
 
 Yoneda.prototype.lower = function() {

@@ -1,11 +1,10 @@
-var λ           = require('fantasy-check/src/adapters/nodeunit'),
-    functor     = require('fantasy-check/src/laws/functor'),
+'use strict';
 
-    fantasia    = require('../fantasy-frees'),
+const λ = require('fantasy-check/src/adapters/nodeunit');
+const functor = require('fantasy-check/src/laws/functor');
 
-    Identity = require('fantasy-identities'),
-
-    Coyoneda = fantasia.Coyoneda;
+const {Coyoneda} = require('../fantasy-frees');
+const Identity = require('fantasy-identities');
  
 function of(x) {
     return Coyoneda.lift(Identity.of(x));

@@ -1,49 +1,40 @@
-var combinators = require('fantasy-combinators'),
-    daggy       = require('daggy'),
-    fantasia    = require('./../fantasy-frees'),
-    
-    Lens     = require('fantasy-lenses').Lens,
-    
-    identity  = combinators.identity,
-    compose   = combinators.compose,
-    constant  = combinators.constant,
-    
-    Free   = fantasia.Free,
-    Unit   = fantasia.Unit,
-        
-    Response  = daggy.tagged('headers', 'statusCode', 'body'),
-    Responses = daggy.taggedSum({
-        AddHeader   : ['header', 'value', 'next'],
-        RemoveHeader: ['header', 'next'],
-        StatusCode  : ['code', 'next'],
-        Body        : ['body', 'next']
-    }),
-    
-    lenses = {
-        headers   : Lens.objectLens('headers'),
-        statusCode: Lens.objectLens('statusCode'),
-        body      : Lens.objectLens('body'),
-    },
-    httpStatus = {
-        ok           : compose(statusCode)(constant(200)),
-        created      : compose(statusCode)(constant(201)),
-        notFound     : compose(statusCode)(constant(404)),
-        internalError: compose(statusCode)(constant(500))
-    },
+'use strict';
 
-    interpreters;
+const daggy = require('daggy');
+
+const {compose, constant, identity} = require('fantasy-combinators');
+const {Free} = require('./../fantasy-frees');
+const {Lens}     = require('fantasy-lenses');
+        
+const Response  = daggy.tagged('headers', 'statusCode', 'body');
+const Responses = daggy.taggedSum({
+    AddHeader   : ['header', 'value', 'next'],
+    RemoveHeader: ['header', 'next'],
+    StatusCode  : ['code', 'next'],
+    Body        : ['body', 'next']
+});
+    
+const lenses = {
+    headers   : Lens.objectLens('headers'),
+    statusCode: Lens.objectLens('statusCode'),
+    body      : Lens.objectLens('body'),
+};
+const httpStatus = {
+    ok           : compose(statusCode)(constant(200)),
+    created      : compose(statusCode)(constant(201)),
+    notFound     : compose(statusCode)(constant(404)),
+    internalError: compose(statusCode)(constant(500))
+};
+
+const unit = daggy.tagged('x');
+const Unit = () => unit('');
 
 Responses.prototype.map = function(f) {
     function go(p) {
-        return function(x, n) {
-            return p(x, f(n));
-        };
+        return (x, n) => p(x, f(n));
     }
-
     return this.cata({
-        AddHeader: function(k, v, n) {
-            return Responses.AddHeader(k, v, f(n));
-        },
+        AddHeader: (k, v, n) => Responses.AddHeader(k, v, f(n)),
         RemoveHeader: go(Responses.RemoveHeader),
         StatusCode: go(Responses.StatusCode),
         Body: go(Responses.Body)
@@ -71,43 +62,41 @@ function body(body) {
 }
 
 function replaceHeader(header, value) {
-    return removeHeader(header).chain(function(x) {
-        return addHeader(header, value);
-    });
+    return removeHeader(header).chain((x) => addHeader(header, value));
 }
 
 function json(value) {
-    return replaceHeader('Content-Type', 'application/json').chain(function(x) {                
+    return replaceHeader('Content-Type', 'application/json').chain((x) => {                
         return body(JSON.stringify(value));
     });
 }
 
 function dissoc(l, n, o) {
     // This is wrong atm.
-    var x = l.run(o).map(function(x) {
+    const x = l.run(o).map((x) => {
         delete x.headers[n];
         return x;
     });
     return x.extract();
 }
 
-interpreters = {
-    pure: function(free, res){
+const interpreters = {
+    pure: (free, res) => {
         return free.resume().fold(
-            function(x){
+            (x) => {
                 return x.cata({
-                    AddHeader: function(header, value, n) {
+                    AddHeader: (header, value, n) => {
                         var h = lenses.headers.andThen(Lens.objectLens(header));
                         return interpreters.pure(n, h.run(res).set(value));
                     },
-                    RemoveHeader: function(header, n) {
+                    RemoveHeader: (header, n) => {
                         var h = lenses.headers.andThen(Lens.objectLens(header));
                         return interpreters.pure(n, dissoc(h, header, res));
                     },
-                    StatusCode: function(code, n) {
+                    StatusCode: (code, n) => {
                         return interpreters.pure(n, lenses.statusCode.run(res).set(code));
                     },
-                    Body: function(body, n) {
+                    Body: (body, n) => {
                         return interpreters.pure(n, lenses.body.run(res).set(body));
                     }
                 });
@@ -117,15 +106,11 @@ interpreters = {
     }
 };
 
-(function(){
+const res = response();
+const script = addHeader('Content-Type', 'text/plain')
+            .andThen(httpStatus.ok())
+            .andThen(json({text:'Hello World!'}));
 
-    var res = response(),
-        script = addHeader('Content-Type', 'text/plain')
-                .andThen(httpStatus.ok())
-                .andThen(json({text:'Hello World!'}));
-
-    console.log('----------------------------');
-    console.log(interpreters.pure(script, res));
-    console.log('----------------------------');
-
-})();
+console.log('----------------------------');
+console.log(interpreters.pure(script, res));
+console.log('----------------------------');

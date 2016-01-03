@@ -31,7 +31,7 @@
     "readline-sync": "^1.2.19"
   },
   "scripts": {
-    "test": "grunt"
+    "test": "node --harmony_destructuring node_modules/grunt-contrib-nodeunit/node_modules/.bin/nodeunit test/*.js"
   },
   "files": [
     "fantasy-frees.js",

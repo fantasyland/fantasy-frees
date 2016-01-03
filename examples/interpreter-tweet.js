@@ -1,34 +1,28 @@
-var combinators = require('fantasy-combinators'),
-    daggy       = require('daggy'),
-    fantasia    = require('./../fantasy-frees'),
-    tuples      = require('fantasy-tuples'),
-    helpers     = require('fantasy-helpers'),
-    
-    Cofree   = require('fantasy-cofrees'),
-    Identity = require('fantasy-identities'),
-    Option   = require('fantasy-options'),
-    
-    identity  = combinators.identity,
-    singleton = helpers.singleton,
+'use strict';
 
-    Free   = fantasia.Free,
-    Tuple2 = tuples.Tuple2,
-    
-    Tweet   = daggy.tagged('id', 'str'),
-    User    = daggy.tagged('id', 'name', 'photo'),
+const daggy = require('daggy');
 
-    Service = daggy.taggedSum({
-        GetTweets    : ['id'],
-        GetUserName  : ['id'],
-        GetUserPhoto : ['id']
-    }),
+const {identity} = require('fantasy-combinators');    
+const {Free}    = require('./../fantasy-frees');
+const {singleton}     = require('fantasy-helpers');
     
-    Request = daggy.taggedSum({
-        Fetch : ['x'],
-        Pure  : ['x']
-    }),
+const Cofree   = require('fantasy-cofrees');
+const Identity = require('fantasy-identities');
+const Option   = require('fantasy-options');
 
-    interpreters;
+const Tweet   = daggy.tagged('id', 'str');
+const User    = daggy.tagged('id', 'name', 'photo');
+
+const Service = daggy.taggedSum({
+    GetTweets    : ['id'],
+    GetUserName  : ['id'],
+    GetUserPhoto : ['id']
+});
+    
+const Request = daggy.taggedSum({
+    Fetch : ['x'],
+    Pure  : ['x']
+});
 
 function pure(x) {
     return Free.liftFC(Request.Pure(x));
@@ -47,12 +41,8 @@ function arrayNel(x) {
 
 function nelArray(xs) {
     return [xs.a].concat(xs.f.cata({
-        Some: function(x) {
-            return nelArray(x);
-        },
-        None: function() {
-            return [];
-        }
+        Some: (x) => nelArray(x),
+        None: () => []
     }));
 }
 
@@ -60,21 +50,21 @@ Cofree.prototype.sequence = function(p) {
     return this.traverse(identity, p);
 };
 
-interpreters = {
-    pure : function(req) {
-        var res = req.cata({
+const interpreters = {
+    pure : (req) => {
+        const res = req.cata({
             Pure: identity,
-            Fetch: function(s) {
+            Fetch: (s) => {
                 return s.cata({
-                    GetTweets: function(id) {
+                    GetTweets: (id) => {
                         return arrayNel([Tweet(1, 'Hello'), Tweet(2, 'World'), Tweet(3, '!')]);
                     },
-                    GetUserName: function(id) {
+                    GetUserName: (id) => {
                         return id === 1 ? 'Tim'
                              : id === 2 ? 'Bob'
                              : 'Anonymous';
                     },
-                    GetUserPhoto: function(id) {
+                    GetUserPhoto: (id) => {
                         return id === 1 ? ':-)'
                              : id === 2 ? ':-D'
                              : ':-|';
@@ -87,25 +77,22 @@ interpreters = {
 };
 
 function getUser(id) {
-    return fetch(Service.GetUserName(id)).chain(function(name) {
-        return fetch(Service.GetUserPhoto(id)).map(function(photo) {
+    return fetch(Service.GetUserName(id)).chain((name) => {
+        return fetch(Service.GetUserPhoto(id)).map((photo) => {
             return User(id, name, photo);
         });
     });
 }
 
-(function() {
-
-    var id = 1,
-        script = fetch(Service.GetTweets(id)).chain(function(tweets) {
-            return tweets.map(function(tweet) {
-                return getUser(tweet.id).map(function(user) {
-                    return singleton(tweet.str, user);
-                });
-            }).sequence(Free);
+const id = 1;
+const script = fetch(Service.GetTweets(id)).chain((tweets) => {
+    return tweets.map((tweet) => {
+        return getUser(tweet.id).map((user) => {
+            return singleton(tweet.str, user);
         });
+    }).sequence(Free);
+});
 
-    console.log('---------------------------------------------------------');
-    console.log(nelArray(Free.runFC(script, interpreters.pure, Identity).x));
-    console.log('---------------------------------------------------------');
-})()
+console.log('---------------------------------------------------------');
+console.log(nelArray(Free.runFC(script, interpreters.pure, Identity).x));
+console.log('---------------------------------------------------------');
