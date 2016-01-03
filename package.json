@@ -2,11 +2,11 @@
   "name": "fantasy-frees",
   "description": "Free yourself in the land of fantasies.",
   "author": "Simon Richardson <stickupkid@gmail.com> (https://github.com/SimonRichardson)",
-  "homepage": "https://github.com/SimonRichardson/fantasy-frees",
+  "homepage": "https://github.com/fantasyland/fantasy-frees",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SimonRichardson/fantasy-frees.git"
+    "url": "git+https://github.com/fantasyland/fantasy-frees.git"
   },
   "dependencies": {
     "fantasy-combinators": "^0.x.x",
@@ -40,7 +40,7 @@
   "main": "fantasy-frees.js",
   "version": "0.1.0",
   "bugs": {
-    "url": "https://github.com/SimonRichardson/fantasy-frees/issues"
+    "url": "https://github.com/fantasyland/fantasy-frees/issues"
   },
   "directories": {
     "example": "examples",
