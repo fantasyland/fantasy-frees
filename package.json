@@ -25,6 +25,8 @@
     "fantasy-identities": "git+https://github.com/fantasyland/fantasy-identities.git",
     "fantasy-options": "git+https://github.com/fantasyland/fantasy-options.git",
     "fantasy-writers": "git+https://github.com/fantasyland/fantasy-writers.git",
+    "fantasy-coproducts": "git+https://github.com/fantasyland/fantasy-coproducts.git",
+    "fantasy-io": "git+https://github.com/fantasyland/fantasy-io.git",
     "readline-sync": "^1.2.19"
   },
   "scripts": {

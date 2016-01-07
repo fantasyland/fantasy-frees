@@ -54,7 +54,7 @@ function writeLine(x) {
     return Free.liftFC(TerminalOp.WriteLine(x));
 }
 
-interpreters = {
+const interpreters = {
     pure : (program) => {
         return program.cata({
             ReadLine: () => {
