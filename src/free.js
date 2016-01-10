@@ -15,15 +15,23 @@ const Free = daggy.taggedSum({
 
 Free.of = Free.Return;
 
-Free.liftF = function(c) {
+Free.liftF = (c) => {
     return Free.Suspend(c.map(Free.Return));
 };
 
-Free.liftFC = function(c) {
+Free.liftFI = (fa) => {
+    return Free.liftF(fa.inj());
+};
+
+Free.liftFC = (c) => {
     return Free.liftF(Coyoneda.lift(c));
 };
 
-Free.runFC = function(m, f, p) {
+Free.liftFCI = (c) => {
+    return Free.liftFC(fa.inj());
+};
+
+Free.runFC = (m, f, p) => {
     return m.foldMap(p, (coyo) => f(coyo.x).map(coyo.f));
 };
 
