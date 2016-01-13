@@ -4,7 +4,7 @@ const daggy = require('daggy');
 
 const {compose, identity} = require('fantasy-combinators');
 const {Free} = require('./../fantasy-frees');
-const {Coproduct} = require('fantasy-coproducts');
+const Coproduct = require('fantasy-coproducts');
 const IO = require('fantasy-io');
 
 
