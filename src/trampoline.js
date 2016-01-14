@@ -24,6 +24,4 @@ function run(x) {
     return x;
 }
 
-// Export
-if (typeof module != 'undefined')
-    module.exports = {delay, done, run, suspend};
+module.exports = {delay, done, run, suspend};

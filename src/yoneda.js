@@ -1,15 +1,14 @@
 'use strict';
 
 const {compose, identity} = require('fantasy-combinators');
-const daggy = require('daggy');
+const {tagged} = require('daggy');
+const {map} = require('fantasy-land');
 
-const Yoneda = daggy.tagged('f');
+const Yoneda = tagged('f');
 
-Yoneda.lift = function(x) {
-    return Yoneda((y) => x.map(y));
-};
+Yoneda.lift = (x) => Yoneda((y) => x[map](y));
 
-Yoneda.prototype.map = function(f) {
+Yoneda.prototype[map] = function(f) {
     return Yoneda((x) => this.run(compose(x)(f)));
 };
 
@@ -21,6 +20,4 @@ Yoneda.prototype.run = function(k) {
     return this.f(k);
 };
 
-// Export
-if (typeof module != 'undefined')
-    module.exports = Yoneda;
+module.exports = Yoneda;

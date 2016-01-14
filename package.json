@@ -12,6 +12,8 @@
     "fantasy-combinators": "^0.x.x",
     "fantasy-eithers": "^0.x.x",
     "fantasy-sorcery": "^0.x.x",
+    "fantasy-land": "git+https://github.com/fantasyland/fantasy-land.git",
+    "fantasy-consts": "git+https://github.com/fantasyland/fantasy-consts.git",
     "daggy": "^0.x.x"
   },
   "devDependencies": {
