@@ -1,9 +1,9 @@
 'use strict';
 
-const λ = require('fantasy-check/src/adapters/nodeunit');
-const functor = require('fantasy-check/src/laws/functor');
-const {Yoneda} = require('../fantasy-frees');
-const Identity = require('fantasy-identities');
+const λ = require('./lib/test');
+const {functor, Identity} = λ;
+
+const {Yoneda} = λ.Frees;
  
 function of(x) {
     return Yoneda.lift(Identity.of(x));

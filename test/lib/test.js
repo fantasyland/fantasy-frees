@@ -8,6 +8,7 @@ const monad = require('fantasy-check/src/laws/monad');
 const daggy = require('daggy');
 
 const {curry, isInstanceOf} = require('fantasy-helpers');
+const {constant, identity} = require('fantasy-combinators');
 
 const Identity = require('fantasy-identities');
 const Tuples = require('fantasy-tuples');
@@ -47,6 +48,8 @@ const λʹ = λ
     .property('isIdentity', isIdentity)
     .property('identityOf', identityOf)
     .property('curry', curry)
+    .property('constant', constant)
+    .property('identity', identity)
     .method('arb', isIdentityOf, function(a, b) {
         return Identity.of(this.arb(a.type, b - 1));
     });

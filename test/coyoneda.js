@@ -1,10 +1,9 @@
 'use strict';
 
-const λ = require('fantasy-check/src/adapters/nodeunit');
-const functor = require('fantasy-check/src/laws/functor');
+const λ = require('./lib/test');
+const {functor, Identity} = λ;
 
-const {Coyoneda} = require('../fantasy-frees');
-const Identity = require('fantasy-identities');
+const {Coyoneda} = λ.Frees;
  
 function of(x) {
     return Coyoneda.lift(Identity.of(x));
