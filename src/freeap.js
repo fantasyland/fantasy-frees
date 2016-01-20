@@ -30,7 +30,7 @@ FreeAp.prototype[map] = function(f) {
     });
 };
 
-FreeAp.prototype.foldMap = function(f) {
+FreeAp.prototype.foldMap = function(f, p) {
     return this.cata({
         Pure: FreeAp.Pure,
         Ap: (x, y) => y.foldMap(f)[ap](f(x))
