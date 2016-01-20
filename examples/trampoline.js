@@ -1,7 +1,6 @@
 'use strict';
 
 const {Trampoline} = require('./../fantasy-frees');
-const {identity} = require('fantasy-combinators');
 
 function loop(n) {
     function inner(i) {

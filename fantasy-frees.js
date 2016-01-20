@@ -2,7 +2,8 @@
 
 const Coyoneda = require('./src/coyoneda');
 const Free = require('./src/free');
+const FreeAp = require('./src/freeap');
 const Trampoline = require('./src/trampoline');
 const Yoneda = require('./src/yoneda');
 
-exports = module.exports = {Coyoneda, Free, Trampoline, Yoneda};
+module.exports = {Coyoneda, Free, FreeAp, Trampoline, Yoneda};
